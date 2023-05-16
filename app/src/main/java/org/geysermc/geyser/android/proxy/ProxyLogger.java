@@ -27,16 +27,11 @@ package org.geysermc.geyser.android.proxy;
 
 import org.geysermc.geyser.android.utils.EventListeners;
 
-import lombok.Getter;
-import lombok.Setter;
-
 public class ProxyLogger {
 
-    @Getter
-    private static String log = "";
+    public static String log = "";
 
-    @Setter
-    private static EventListeners.LogEventListener listener;
+    public static EventListeners.LogEventListener listener;
 
     public void warning(String message) {
         log += "WARN - " + message + "\n";

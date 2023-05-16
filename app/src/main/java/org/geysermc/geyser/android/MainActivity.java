@@ -25,6 +25,7 @@
 
 package org.geysermc.geyser.android;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -49,16 +50,14 @@ import org.geysermc.geyser.android.ui.about.AboutActivity;
 import org.geysermc.geyser.android.ui.settings.SettingsActivity;
 import org.geysermc.geyser.android.utils.AndroidUtils;
 
-import lombok.Getter;
-
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
     private AppBarConfiguration mAppBarConfiguration;
     private DrawerLayout drawer;
     private NavController navController;
 
-    @Getter
-    private static Context context;
+    @SuppressLint("StaticFieldLeak")
+    public static Context context;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -71,21 +70,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         setTitle(getResources().getString(R.string.menu_home));
 
         // Setup the theme
-        String theme = PreferenceManager.getDefaultSharedPreferences(getContext()).getString("theme", "system");
-        if (theme != null) {
-            switch (theme) {
-                case "dark":
-                    AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
-                    break;
-
-                case "light":
-                    AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
-                    break;
-
-                default:
+        String theme = PreferenceManager.getDefaultSharedPreferences(context).getString("theme", "system");
+        switch (theme) {
+            case "dark" -> AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
+            case "light" -> AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
+            default ->
                     AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM);
-                    break;
-            }
         }
 
         // Setup the action bar
@@ -123,19 +113,22 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         return true;
     }
 
+    @SuppressLint("NonConstantResourceId")
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         switch (item.getItemId()) {
-            case R.id.action_settings:
+            case R.id.action_settings -> {
                 Intent settingsIntent = new Intent(MainActivity.this, SettingsActivity.class);
                 MainActivity.this.startActivity(settingsIntent);
                 return true;
-            case R.id.action_about:
+            }
+            case R.id.action_about -> {
                 Intent aboutIntent = new Intent(MainActivity.this, AboutActivity.class);
                 MainActivity.this.startActivity(aboutIntent);
                 return true;
-            default:
-                break;
+            }
+            default -> {
+            }
         }
 
         return super.onOptionsItemSelected(item);
@@ -153,17 +146,20 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         navigationView.setNavigationItemSelectedListener(this);
     }
 
+    @SuppressLint("NonConstantResourceId")
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         switch (item.getItemId()) {
-            case R.id.nav_website:
+            case R.id.nav_website -> {
                 AndroidUtils.showURL(getResources().getString(R.string.app_site));
                 drawer.closeDrawer(GravityCompat.START);
                 return false;
-            case R.id.nav_discord:
+            }
+            case R.id.nav_discord -> {
                 AndroidUtils.showURL(getResources().getString(R.string.app_discord));
                 drawer.closeDrawer(GravityCompat.START);
                 return false;
+            }
         }
 
         // Pass the select even onto the nav ui

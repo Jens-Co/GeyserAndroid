@@ -40,7 +40,6 @@ import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.preference.PreferenceManager;
 
-import org.geysermc.geyser.android.BuildConfig;
 import org.geysermc.geyser.android.R;
 import org.geysermc.geyser.android.proxy.ProxyLogger;
 import org.geysermc.geyser.android.proxy.ProxyServer;
@@ -69,14 +68,14 @@ public class ProxyFragment extends Fragment {
         txtLogs.setMovementMethod(new ScrollingMovementMethod());
 
         // Set the initial text for all the UI elements
-        txtLogs.setText(ProxyLogger.getLog());
+        txtLogs.setText(ProxyLogger.log);
         txtAddress.setText(sharedPreferences.getString("proxy_address", getResources().getString(R.string.default_ip)));
         txtPort.setText(sharedPreferences.getString("proxy_port", getResources().getString(R.string.default_port_be)));
 
         // Check if the server is already running
-        if (ProxyServer.getInstance() != null && !ProxyServer.getInstance().isShuttingDown()) {
+        if (ProxyServer.instance != null && !ProxyServer.instance.shuttingDown) {
             // Check if the server is still starting
-            if (ProxyService.isFinishedStartup()) {
+            if (ProxyService.finishedStartup) {
                 btnStartStop.setText(container.getResources().getString(R.string.proxy_stop));
             } else {
                 btnStartStop.setText(container.getResources().getString(R.string.proxy_starting));
@@ -98,10 +97,10 @@ public class ProxyFragment extends Fragment {
 
         btnStartStop.setOnClickListener(v -> {
             Button self = (Button) v;
-            if (ProxyServer.getInstance() != null && !ProxyServer.getInstance().isShuttingDown()) {
+            if (ProxyServer.instance != null && !ProxyServer.instance.shuttingDown) {
                 Intent serviceIntent = new Intent(getContext(), ProxyService.class);
                 getContext().stopService(serviceIntent);
-                
+
                 self.setText(container.getResources().getString(R.string.proxy_start));
                 txtAddress.setEnabled(true);
                 txtPort.setEnabled(true);
@@ -112,7 +111,7 @@ public class ProxyFragment extends Fragment {
                 txtPort.setEnabled(false);
 
                 // Clear all the current disable listeners to preserve memory usage
-                ProxyServer.getOnDisableListeners().clear();
+                ProxyServer.onDisableListeners.clear();
 
                 // Setup the listeners for the current screen
                 setupListeners(container);
@@ -133,26 +132,17 @@ public class ProxyFragment extends Fragment {
      */
     private void setupListeners(ViewGroup container) {
         // When we have a new log line add it to txtLogs
-        ProxyLogger.setListener(line -> {
-            if (txtLogs != null) {
-                // If we are in debug then print logs to the console aswell
-                if (BuildConfig.DEBUG) {
-                    System.out.println(AndroidUtils.purgeColorCodes(line));
-                }
 
-                AndroidUtils.runOnUiThread(getActivity(), () -> txtLogs.append(AndroidUtils.purgeColorCodes(line) + "\n"));
-            }
-        });
 
         // When the server is disabled toggle the button
-        ProxyServer.getOnDisableListeners().add(() -> AndroidUtils.runOnUiThread(getActivity(), () -> {
+        ProxyServer.onDisableListeners.add(() -> AndroidUtils.runOnUiThread(getActivity(), () -> {
             btnStartStop.setText(container.getResources().getString(R.string.proxy_start));
             txtAddress.setEnabled(true);
             txtPort.setEnabled(true);
         }));
 
         // When the server has started and its failed status
-        ProxyService.setListener((failed) -> AndroidUtils.runOnUiThread(getActivity(), () -> {
+        ProxyService.setStartedEventListener((failed) -> AndroidUtils.runOnUiThread(getActivity(), () -> {
             if (failed) {
                 btnStartStop.setText(container.getResources().getString(R.string.proxy_start));
                 btnStartStop.setEnabled(true);

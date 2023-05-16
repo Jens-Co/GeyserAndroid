@@ -61,8 +61,8 @@ public class PacketHandler implements BedrockPacketHandler {
 
     public void disconnect(DisconnectReason reason) {
         if (player != null) {
-            masterServer.getProxyLogger().info(player.getDisplayName() + " has disconnected from the master server (" + reason + ")");
-            masterServer.getPlayers().remove(player.getXuid());
+            masterServer.proxyLogger.info(player.displayName + " has disconnected from the master server (" + reason + ")");
+            masterServer.players.remove(player.xuid);
         }
     }
 
@@ -126,7 +126,7 @@ public class PacketHandler implements BedrockPacketHandler {
 
                 // Create a new player and add it to the players list
                 player = new Player(extraData, session);
-                masterServer.getPlayers().put(player.getXuid(), player);
+                masterServer.players.put(player.xuid, player);
 
                 // Tell the client we have logged in successfully
                 PlayStatusPacket playStatusPacket = new PlayStatusPacket();
@@ -151,20 +151,18 @@ public class PacketHandler implements BedrockPacketHandler {
     @Override
     public boolean handle(ResourcePackClientResponsePacket packet) {
         switch (packet.getStatus()) {
-            case COMPLETED:
-                masterServer.getProxyLogger().info("Logged in " + player.getDisplayName() + " (" + player.getXuid() + ", " + player.getIdentity() + ")");
+            case COMPLETED -> {
+                masterServer.proxyLogger.info("Logged in " + player.displayName + " (" + player.xuid + ", " + player.identity + ")");
                 player.sendStartGame();
-                break;
-            case HAVE_ALL_PACKS:
+            }
+            case HAVE_ALL_PACKS -> {
                 ResourcePackStackPacket stack = new ResourcePackStackPacket();
                 stack.setExperimentsPreviouslyToggled(false);
                 stack.setForcedToAccept(false);
                 stack.setGameVersion("*");
                 session.sendPacket(stack);
-                break;
-            default:
-                session.disconnect("disconnectionScreen.resourcePack");
-                break;
+            }
+            default -> session.disconnect("disconnectionScreen.resourcePack");
         }
 
         return true;
@@ -172,9 +170,9 @@ public class PacketHandler implements BedrockPacketHandler {
 
     @Override
     public boolean handle(SetLocalPlayerAsInitializedPacket packet) {
-        masterServer.getProxyLogger().debug("Player initialized: " + player.getDisplayName());
+        masterServer.proxyLogger.debug("Player initialized: " + player.displayName);
 
-        player.connectToServer(ProxyServer.getInstance().getAddress(), ProxyServer.getInstance().getPort());
+        player.connectToServer(ProxyServer.instance.address, ProxyServer.instance.port);
 
         return false;
     }

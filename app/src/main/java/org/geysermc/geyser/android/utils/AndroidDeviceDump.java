@@ -30,9 +30,6 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.os.Build;
 
-import lombok.Getter;
-
-@Getter
 public class AndroidDeviceDump {
 
     private final AndroidDeviceDump.AndroidInfo androidInfo;
@@ -43,7 +40,6 @@ public class AndroidDeviceDump {
         this.appInfo = new AndroidDeviceDump.AppInfo(ctx);
     }
 
-    @Getter
     public static class AndroidInfo {
 
         public final String androidVersion;
@@ -59,7 +55,6 @@ public class AndroidDeviceDump {
         }
     }
 
-    @Getter
     public static class AppInfo {
 
         public long versionCode = 0;

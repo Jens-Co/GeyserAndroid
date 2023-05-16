@@ -65,6 +65,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         setPreferencesFromResource(R.xml.root_preferences, rootKey);
 
         Preference configReset = findPreference("geyser_reset_config");
+        assert configReset != null;
         configReset.setOnPreferenceClickListener(preference -> {
             File configFile = AndroidUtils.getStoragePath(requireContext()).resolve("config.yml").toFile();
             if (configFile.exists()) {
@@ -92,6 +93,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         });
 
         Preference userAuthsReset = findPreference("geyser_reset_user_auths");
+        assert userAuthsReset != null;
         userAuthsReset.setOnPreferenceClickListener(preference -> {
             SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(requireContext());
 
@@ -115,6 +117,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
 
         // Handle the dump creation prefrence
         Preference createDeviceDump = findPreference("create_device_dump");
+        assert createDeviceDump != null;
         createDeviceDump.setOnPreferenceClickListener(preference -> {
             try {
                 // Let the user know we started

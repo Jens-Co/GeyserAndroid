@@ -44,21 +44,15 @@ import org.geysermc.geyser.android.R;
 import org.geysermc.geyser.android.proxy.ProxyServer;
 import org.geysermc.geyser.android.utils.EventListeners;
 
-import lombok.Getter;
-import lombok.Setter;
-
 public class ProxyService extends Service {
 
-    private final int NOTIFCATION_ID = 1338;
-    private final String ACTION_STOP_SERVICE = "STOP_PROXY_SERVICE";
+    public final String ACTION_STOP_SERVICE = "STOP_PROXY_SERVICE";
 
-    private ProxyServer proxy;
+    public ProxyServer proxy;
 
-    @Getter
-    private static boolean finishedStartup;
+    public static boolean finishedStartup;
 
-    @Setter
-    private static EventListeners.StartedEventListener listener;
+    public static EventListeners.StartedEventListener listener;
 
     @Override
     public void onCreate() {
@@ -69,12 +63,13 @@ public class ProxyService extends Service {
         Intent openLogs = new Intent(this, MainActivity.class);
         openLogs.putExtra("nav_element", R.id.nav_proxy);
 
-        PendingIntent openLogsPendingIntent = PendingIntent.getActivity(this, NOTIFCATION_ID + 1, openLogs, 0);
+        int NOTIFCATION_ID = 1338;
+        PendingIntent openLogsPendingIntent = PendingIntent.getActivity(this, NOTIFCATION_ID + 1, openLogs, PendingIntent.FLAG_IMMUTABLE);
 
         Intent stopSelf = new Intent(this, ProxyService.class);
         stopSelf.setAction(this.ACTION_STOP_SERVICE);
 
-        PendingIntent stopPendingIntent = PendingIntent.getService(this, NOTIFCATION_ID + 2, stopSelf, PendingIntent.FLAG_CANCEL_CURRENT);
+        PendingIntent stopPendingIntent = PendingIntent.getService(this, NOTIFCATION_ID + 2, stopSelf, PendingIntent.FLAG_CANCEL_CURRENT | PendingIntent.FLAG_IMMUTABLE);
 
         Notification notification = new NotificationCompat.Builder(this, "proxy_channel")
                 .setSmallIcon(R.drawable.ic_menu_proxy)
@@ -87,7 +82,6 @@ public class ProxyService extends Service {
         startForeground(NOTIFCATION_ID, notification);
 
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-        ProxyServer.getOnDisableListeners().add(this::stopSelf);
         proxy = new ProxyServer(sharedPreferences.getString("proxy_address", getResources().getString(R.string.default_ip)), Integer.parseInt(sharedPreferences.getString("proxy_port", getResources().getString(R.string.default_port_be))), this);
     }
 
@@ -95,7 +89,7 @@ public class ProxyService extends Service {
     public void onDestroy() {
         super.onDestroy();
 
-        ProxyServer.getInstance().onDisable();
+        ProxyServer.instance.onDisable();
     }
 
     @Override
@@ -107,6 +101,7 @@ public class ProxyService extends Service {
         } else {
             Runnable runnable = () -> {
                 try {
+                    System.out.println("hello");
                     proxy.onEnable();
                     if (listener != null) listener.onStarted(false);
                     finishedStartup = true;
@@ -115,6 +110,7 @@ public class ProxyService extends Service {
                     stopForeground(true);
                 }
             };
+
             Thread proxyThread = new Thread(runnable);
             proxyThread.start();
         }
@@ -134,5 +130,9 @@ public class ProxyService extends Service {
             NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
             notificationManager.createNotificationChannel(notificationChannel);
         }
+    }
+
+    public static void setStartedEventListener(EventListeners.StartedEventListener listener) {
+        ProxyService.listener = listener;
     }
 }

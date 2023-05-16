@@ -33,6 +33,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
@@ -44,18 +45,45 @@ import org.geysermc.geyser.android.R;
 
 public class HomeFragment extends Fragment {
 
+    private NavigationView navView;
+    private NavController navController;
+    private Menu menu;
+
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View root = inflater.inflate(R.layout.fragment_home, container, false);
 
         Button btnJoinBE = root.findViewById(R.id.btnJoinBE);
 
+        return root;
+    }
+
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+
         // Get the menu and nav controller
-        Menu menu = ((NavigationView) requireActivity().findViewById(R.id.nav_view)).getMenu();
-        NavController navController = ((NavHostFragment) getParentFragment()).getNavController();
+        navView = requireActivity().findViewById(R.id.nav_view);
+        if (navView == null) {
+            throw new IllegalStateException("Nav view not found");
+        }
+
+        menu = navView.getMenu();
+        if (menu == null) {
+            throw new IllegalStateException("Menu not found");
+        }
+
+        NavHostFragment parentFragment = (NavHostFragment) getParentFragment();
+        if (parentFragment == null) {
+            throw new IllegalStateException("Parent fragment not found");
+        }
+
+        navController = parentFragment.getNavController();
+        if (navController == null) {
+            throw new IllegalStateException("Nav controller not found");
+        }
 
         // Setup the join BE button
+        Button btnJoinBE = requireView().findViewById(R.id.btnJoinBE);
         btnJoinBE.setOnClickListener(v -> NavigationUI.onNavDestinationSelected(menu.findItem(R.id.nav_proxy), navController));
-
-        return root;
     }
 }

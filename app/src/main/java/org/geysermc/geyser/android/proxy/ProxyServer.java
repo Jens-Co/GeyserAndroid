@@ -25,16 +25,17 @@
 
 package org.geysermc.geyser.android.proxy;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
+
+import androidx.annotation.NonNull;
 
 import com.nukkitx.protocol.bedrock.BedrockPacketCodec;
 import com.nukkitx.protocol.bedrock.BedrockPong;
 import com.nukkitx.protocol.bedrock.BedrockServer;
 import com.nukkitx.protocol.bedrock.BedrockServerEventHandler;
 import com.nukkitx.protocol.bedrock.BedrockServerSession;
-import com.nukkitx.protocol.bedrock.v431.Bedrock_v431;
-import com.nukkitx.protocol.bedrock.v440.Bedrock_v440;
-import com.nukkitx.protocol.bedrock.v475.Bedrock_v475;
+import com.nukkitx.protocol.bedrock.v582.Bedrock_v582;
 
 import org.geysermc.geyser.android.R;
 import org.geysermc.geyser.android.utils.EventListeners;
@@ -49,41 +50,31 @@ import java.util.TimerTask;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 
-import lombok.Getter;
-
 public class ProxyServer {
 
-    public static final BedrockPacketCodec CODEC = Bedrock_v475.V475_CODEC;
+    public static final BedrockPacketCodec CODEC = Bedrock_v582.V582_CODEC;
 
     private BedrockServer bdServer;
     private BedrockPong bdPong;
 
-    @Getter
-    private boolean shuttingDown = false;
+    public boolean shuttingDown = false;
 
-    @Getter
-    private static ProxyServer instance;
+    @SuppressLint("StaticFieldLeak")
+    public static ProxyServer instance;
 
-    @Getter
-    private ProxyLogger proxyLogger;
+    public ProxyLogger proxyLogger;
 
-    @Getter
-    private ScheduledExecutorService generalThreadPool;
+    public ScheduledExecutorService generalThreadPool;
 
-    @Getter
-    private final Map<String, Player> players = new HashMap<>();
+    public final Map<String, Player> players = new HashMap<>();
 
-    @Getter
-    private final String address;
+    public final String address;
 
-    @Getter
-    private final int port;
+    public final int port;
 
-    @Getter
-    private final Context ctx;
+    public final Context ctx;
 
-    @Getter
-    private static final List<EventListeners.OnDisableEventListener> onDisableListeners = new ArrayList<>();
+    public static final List<EventListeners.OnDisableEventListener> onDisableListeners = new ArrayList<>();
 
     public ProxyServer(String address, int port, Context ctx) {
         this.address = address;
@@ -123,6 +114,7 @@ public class ProxyServer {
         InetSocketAddress bindAddress = new InetSocketAddress("0.0.0.0", 19132);
         bdServer = new BedrockServer(bindAddress);
 
+
         bdPong = new BedrockPong();
         bdPong.setEdition("MCPE");
         bdPong.setMotd(ctx.getResources().getString(R.string.menu_proxy));
@@ -136,17 +128,17 @@ public class ProxyServer {
 
         bdServer.setHandler(new BedrockServerEventHandler() {
             @Override
-            public boolean onConnectionRequest(InetSocketAddress address) {
+            public boolean onConnectionRequest(@NonNull InetSocketAddress address) {
                 return true; // Connection will be accepted
             }
 
             @Override
-            public BedrockPong onQuery(InetSocketAddress address) {
+            public BedrockPong onQuery(@NonNull InetSocketAddress address) {
                 return bdPong;
             }
 
             @Override
-            public void onSessionCreation(BedrockServerSession session) {
+            public void onSessionCreation(@NonNull BedrockServerSession session) {
                 session.setPacketHandler(new PacketHandler(session, instance));
             }
         });

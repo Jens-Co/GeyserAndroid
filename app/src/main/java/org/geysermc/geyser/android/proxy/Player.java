@@ -48,14 +48,11 @@ import com.nukkitx.protocol.bedrock.packet.TransferPacket;
 import java.net.InetSocketAddress;
 import java.util.UUID;
 
-import lombok.Getter;
-
-@Getter
 public class Player {
 
-    private final String xuid;
-    private final UUID identity;
-    private final String displayName;
+    public final String xuid;
+    public final UUID identity;
+    public final String displayName;
 
     private final BedrockServerSession session;
 
@@ -164,8 +161,7 @@ public class Player {
      * Send the player to the another server
      */
     public void connectToServer(String address, int port) {
-        ProxyServer.getInstance().getProxyLogger().info("Sending server transfer packet to " + displayName);
-
+        ProxyServer.instance.proxyLogger.info("Sending server transfer packet to " + displayName);
         // Create an InetSocketAddress to reduce issues with hostnames for PS4
         // Thanks Extollite
         InetSocketAddress socketAddress = new InetSocketAddress(address, port);

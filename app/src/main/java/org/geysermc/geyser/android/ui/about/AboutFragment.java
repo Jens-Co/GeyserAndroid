@@ -30,9 +30,12 @@ import android.os.Bundle;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
 
-import org.geysermc.geyser.android.BuildConfig;
+import com.android.volley.BuildConfig;
+
 import org.geysermc.geyser.android.R;
 import org.geysermc.geyser.android.utils.AndroidUtils;
+
+import java.util.Objects;
 
 public class AboutFragment extends PreferenceFragmentCompat {
 
@@ -40,46 +43,53 @@ public class AboutFragment extends PreferenceFragmentCompat {
     public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
         setPreferencesFromResource(R.xml.about_preferences, rootKey);
 
-        findPreference("version").setSummary(BuildConfig.VERSION_NAME);
     }
 
     @Override
     public boolean onPreferenceTreeClick(Preference preference) {
         switch (preference.getKey()) {
             // About
-            case "version":
-                AndroidUtils.setClipboard(requireContext(), BuildConfig.VERSION_NAME);
+            case "version" -> {
+                AndroidUtils.setClipboard(requireContext(), "Jens");
                 AndroidUtils.showToast(getContext(), getResources().getString(R.string.about_version_copied));
                 return true;
+            }
 
             // Links
-            case "github":
+            case "github" -> {
                 AndroidUtils.showURL("https://github.com/GeyserMC/GeyserAndroid");
                 return true;
-            case "trello":
+            }
+            case "trello" -> {
                 AndroidUtils.showURL("https://trello.com/b/pPJpl9dZ/geyser-android");
                 return true;
-            case "ci":
+            }
+            case "ci" -> {
                 AndroidUtils.showURL("https://ci.opencollab.dev/job/GeyserMC/job/GeyserAndroid/");
                 return true;
+            }
 
             // Credits
-            case "rtm516":
+            case "rtm516" -> {
                 AndroidUtils.showURL("https://rtm516.co.uk/");
                 return true;
-            case "arcratist":
+            }
+            case "arcratist" -> {
                 AndroidUtils.showURL("https://github.com/Arcratist/");
                 return true;
-            case "geyser":
+            }
+            case "geyser" -> {
                 AndroidUtils.showURL(getResources().getString(R.string.app_site));
                 return true;
+            }
 
             // Licences
-            case "fontawesome":
+            case "fontawesome" -> {
                 AndroidUtils.showURL("https://fontawesome.com/license");
                 return true;
-            default:
-                break;
+            }
+            default -> {
+            }
         }
 
         return super.onPreferenceTreeClick(preference);

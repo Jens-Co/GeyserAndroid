@@ -66,7 +66,7 @@ public class AndroidUtils {
      */
     public static void showURL(String url) {
         Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
-        MainActivity.getContext().startActivity(browserIntent);
+        MainActivity.context.startActivity(browserIntent);
     }
 
 
@@ -124,8 +124,8 @@ public class AndroidUtils {
      * @param line The string to use
      * @return The sanitised string
      */
-    public static CharSequence purgeColorCodes(String line) {
-        return line.replaceAll("\u00A7[0-9a-fA-F]", "");
+    public static String purgeColorCodes(Object line) {
+        return (String) line;
     }
 
     /**
@@ -220,4 +220,5 @@ public class AndroidUtils {
             }
         };
     }
+
 }
